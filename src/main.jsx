@@ -1,6 +1,5 @@
 function createElement(type, props, ...children) {
   return {
-    $$typeof: Symbol.for("react.element"),
     type,
     props: {
       ...props,
@@ -13,7 +12,6 @@ function createElement(type, props, ...children) {
 
 function createTextElement(text) {
   return {
-    $$typeof: Symbol.for("react.element"),
     type: "TEXT_ELEMENT",
     props: {
       nodeValue: text,
@@ -22,12 +20,11 @@ function createTextElement(text) {
   };
 }
 
-function render(element, container) {
+function createDom(element) {
   const dom =
     element.type !== "TEXT_ELEMENT"
       ? document.createElement(element.type)
       : document.createTextNode(element.type);
-  console.log("🚀 ~ render ~ dom:", dom);
 
   Object.keys(element.props)
     .filter((key) => key !== "children")
@@ -35,13 +32,79 @@ function render(element, container) {
       dom[key] = element.props[key];
     });
 
-  // map over the children
-  element.props.children.forEach((child) => {
-    render(child, dom);
-  });
-
-  container.appendChild(dom);
+  return dom;
 }
+
+function render(element, container) {
+  nextUnitOfWork = {
+    dom: container,
+    props: {
+      children: [element],
+    },
+  };
+}
+
+let nextUnitOfWork = null;
+
+function workLoop() {
+  while (nextUnitOfWork) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+  }
+
+  requestIdleCallback(workLoop);
+}
+
+function performUnitOfWork(fiber) {
+  //todo add dom node
+
+  if (!fiber.dom) {
+    fiber.dom = createDom(fiber);
+  }
+
+  if (fiber.parent) {
+    fiber.parent.dom.appendChild(fiber.dom);
+  }
+
+  // todo itrate over children
+
+  let index = 0;
+  let prevSibling = null;
+
+  while (index < fiber.props.children.length) {
+    const child = fiber.props.children[index];
+
+    const newFiber = {
+      type: child.type,
+      props: child.props,
+      parent: fiber,
+      dom: null,
+    };
+
+    if (index === 0) {
+      fiber.child = newFiber;
+    } else {
+      prevSibling.sibling = newFiber;
+    }
+
+    prevSibling = newFiber;
+    index++;
+  }
+  // todo return next unit of work
+
+  if (fiber.child) {
+    return fiber.child;
+  }
+
+  let nextFiber = fiber;
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
+    }
+    nextFiber = nextFiber.parent;
+  }
+}
+
+window.requestIdleCallback(workLoop);
 
 const Didact = {
   createElement,
@@ -61,4 +124,3 @@ const element2 = (
 
 const container = document.getElementById("root");
 Didact.render(element2, container);
-// ReactDOM.createRoot(container).render(element2);
