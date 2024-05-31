@@ -1,8 +1,27 @@
-# React + Vite
+# React 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository follows the share knowledge meetups to build React from scratch in small steps. it shows how to build a small counter app using React architecture without any third party library.
 
-Currently, two official plugins are available:
+## Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+pnpm install
+```
+
+## Run
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## speical thanks
+
+special thaks goes to Rodrigo Pombo for his amazing blog post 
+
+- [How to build a React from scratch](https://pomb.us/build-your-own-react/)
